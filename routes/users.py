@@ -6,15 +6,11 @@ from passlib.context import CryptContext
 
 from config.db import users_collection
 from schemas.users import userEntity
-from models.users import User, UserInDB, Token, TokenData
-from settings import SECRET_KEY, ALGORITH, ACCESS_TOKEN_EXPIRE_MINUTES
-
-#SECRET_KEY = "148ebd50d37f32513ea375be420145de453d1279ee144dfd631e2e66bd865fe4"
-#ALGORITHM = "HS256"
-#ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from models.users import User, UserInDB, UserForm, Token, TokenData
+from settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1.0/token")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -25,7 +21,6 @@ def get_password_hash(password):
 def get_user(userCollection, username: str):
     try:
         user_data = userEntity(userCollection.find_one({"username":username}))
-        print("User Data:", user_data)
 
         return UserInDB(**user_data)
     except Exception:
@@ -40,6 +35,7 @@ def authenticate_user(userCollection, username: str, password: str):
         return False
     if not verify_password(password, user.hashed_password):
         return False
+
     return user
 
 def create_access_token(data: dict, expires_delta: timedelta or None = None):
@@ -88,14 +84,34 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect username or password",
                             headers={"WWW-Authenticate": "Bearer"})
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
+
+"""@user.post("/api/v1.0/register")
+async def register_for_access(user_data: UserForm):
+    if users_collection.find_one({"username": user_data.username}):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="username taken already"
+                            )
+    user_hashed_password = get_password_hash(user_data.password)
+    user_dict = {
+        "username": user_data.username,
+        "email": user_data.email,
+        "full_name": user_data.full_name,
+        "disabled": False,
+        "hashed_password": user_hashed_password
+    }
+
+    try:
+        users_collection.insert_one(user_dict)
+        return {"message": "successful"}
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Can't register the user")"""
+
 
 @user.get("/api/v1.0/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
-
-@user.get("/users/me/items")
-async def read_own_items(current_user: User = Depends(get_current_active_user)):
-    return [{"item_id": 1, "owner": current_user}]
