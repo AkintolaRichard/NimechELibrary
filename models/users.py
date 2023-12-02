@@ -15,3 +15,9 @@ class User(BaseModel):
 
 class UserInDB(User):
     hashed_password: str
+
+class UserForm(BaseModel):
+    username: str
+    email: str
+    full_name: str
+    password: str
