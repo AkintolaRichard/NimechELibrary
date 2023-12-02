@@ -1,1 +1,6 @@
+# Byte-compiled
+*__pycache__/
+*pyc
+
+# Enviroment Variables
 .env
