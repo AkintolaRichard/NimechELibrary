@@ -5,7 +5,8 @@ def materialEntity(item) -> dict:
         "courseName": item["courseName"],
         "courseLecturer": item["courseLecturer"],
         "materialName": item["materialName"],
-        "url": item["url"]
+        "url": item["url"],
+        "year": item["year"]
         }
 
 def materialsEntity(entity) -> list:
