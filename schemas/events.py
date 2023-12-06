@@ -3,7 +3,9 @@ def eventEntity(item) -> dict:
         "id": str(item["_id"]),
         "description": item["description"],
         "date": item["date"],
-        "venue": item["venue"]
+        "time": item["time"],
+        "location": item["location"],
+        "image_link": item["image_link"]
         }
 
 def eventsEntity(entity) -> list:
