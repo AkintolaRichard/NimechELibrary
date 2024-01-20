@@ -88,7 +88,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
-"""@user.post("/api/v1.0/register")
+@user.post("/api/v1.0/register")
 async def register_for_access(user_data: UserForm):
     if users_collection.find_one({"username": user_data.username}):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -109,7 +109,7 @@ async def register_for_access(user_data: UserForm):
     except:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Can't register the user")"""
+            detail="Can't register the user")
 
 
 @user.get("/api/v1.0/users/me/", response_model=User)
